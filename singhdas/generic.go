@@ -76,7 +76,7 @@ func (client GenericSignerClient) Blind(bpci genericblinding.BlindingParamClient
 	blindingfactors.SignerBlind = *bfac.SignerBlind
 	blindingfactors.IsUsed = false
 
-	return *blindingfactors, *blindmessage, nil
+	return blindingfactors, blindmessage, nil
 
 }
 
@@ -136,7 +136,7 @@ func (client GenericSignerClient) Unblind(bfaci genericblinding.BlindingFactors,
 	csig.R = *signature.R
 	csig.Hm = signature.Hm
 
-	return *csig, cm, nil
+	return csig, cm, nil
 
 }
 
@@ -234,6 +234,6 @@ func (server GenericSigner) Sign(bpsi genericblinding.BlindingParamServer, bmi g
 	signature.SignerBlind = *S.SignerBlind
 	signature.S = S.S
 
-	return *signature, nil
+	return signature, nil
 
 }

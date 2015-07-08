@@ -2,9 +2,9 @@ package jcc
 
 import (
 	"crypto/sha256"
+	"encoding/asn1"
 	"github.com/ronperry/cryptoedge/eccutil"
 	"github.com/ronperry/cryptoedge/genericblinding"
-	"encoding/asn1"
 )
 
 // SchemeName is the name of this blinding scheme
@@ -52,7 +52,7 @@ func (blindingParamClient BlindingParamClient) Unmarshal(b []byte) (genericblind
 	if !eccutil.PointEqual(&blindingParamClient.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -159,7 +159,7 @@ func (blindingFactors BlindingFactors) Unmarshal(b []byte) (genericblinding.Blin
 	if !eccutil.PointEqual(&blindingFactors.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -274,7 +274,7 @@ func (blindSignature BlindSignature) Unmarshal(b []byte) (genericblinding.Blindi
 	if !eccutil.PointEqual(&blindSignature.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -395,7 +395,7 @@ func (blindingParamServer BlindingParamServer) Unmarshal(b []byte) (genericblind
 	if !eccutil.PointEqual(&blindingParamServer.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)

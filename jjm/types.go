@@ -2,16 +2,16 @@ package jjm
 
 import (
 	"crypto/sha256"
+	"encoding/asn1"
 	"github.com/ronperry/cryptoedge/eccutil"
 	"github.com/ronperry/cryptoedge/genericblinding"
-	"encoding/asn1"
 	"math/big"
 )
 
 // SchemeName is the name of this blinding scheme
-const SchemeName = "JCC"
+const SchemeName = "JJM"
 
-// BlindingParamClient is not needed in JCC
+// BlindingParamClient is not needed in JJM
 type BlindingParamClient struct {
 	SchemeName           string
 	DataType             genericblinding.DataType
@@ -55,7 +55,7 @@ func (blindingParamClient BlindingParamClient) Unmarshal(b []byte) (genericblind
 	if !eccutil.PointEqual(&blindingParamClient.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -75,7 +75,7 @@ func (blindingParamClient BlindingParamClient) UniqueID() []byte {
 //
 // ------------------------------------------
 
-// BlindingParamServer is not needed in JCC
+// BlindingParamServer is not needed in JJM
 type BlindingParamServer struct {
 	SchemeName           string
 	DataType             genericblinding.DataType
@@ -122,7 +122,7 @@ func (blindingParamServer BlindingParamServer) Unmarshal(b []byte) (genericblind
 	if !eccutil.PointEqual(&blindingParamServer.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -185,7 +185,7 @@ func (clearMessage ClearMessage) Unmarshal(b []byte) (genericblinding.BlindingDa
 	if n.DataType != clearMessage.DataType {
 		return nil, genericblinding.ErrBadType
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -249,7 +249,7 @@ func (blindingFactors BlindingFactors) Unmarshal(b []byte) (genericblinding.Blin
 	if !eccutil.PointEqual(&blindingFactors.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -312,7 +312,7 @@ func (blindMessage BlindMessage) Unmarshal(b []byte) (genericblinding.BlindingDa
 	if !eccutil.PointEqual(&blindMessage.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -371,7 +371,7 @@ func (blindSignature BlindSignature) Unmarshal(b []byte) (genericblinding.Blindi
 	if !eccutil.PointEqual(&blindSignature.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -432,7 +432,7 @@ func (clearSignature ClearSignature) Unmarshal(b []byte) (genericblinding.Blindi
 	if !eccutil.PointEqual(&clearSignature.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)

@@ -4,6 +4,7 @@ package jjm
 // Implementation of generic blinding interface over JJM
 
 import (
+	"fmt"
 	"github.com/ronperry/cryptoedge/eccutil"
 	"github.com/ronperry/cryptoedge/genericblinding"
 )
@@ -65,6 +66,7 @@ func (server *GenericBlindingServer) Sign(bpsi genericblinding.BlindingParamServ
 	}
 	bm, ok := bmi.(BlindMessage)
 	if !ok {
+		fmt.Println("Message")
 		return nil, genericblinding.ErrBadType
 	}
 

@@ -2,16 +2,16 @@ package singhdas
 
 import (
 	"crypto/sha256"
+	"encoding/asn1"
 	"github.com/ronperry/cryptoedge/eccutil"
 	"github.com/ronperry/cryptoedge/genericblinding"
-	"encoding/asn1"
 	"math/big"
 )
 
 // SchemeName is the name of this blinding scheme
-const SchemeName = "JCC"
+const SchemeName = "SNG"
 
-// BlindingParamClient is not needed in JCC
+// BlindingParamClient is not needed in SNG
 type BlindingParamClient struct {
 	SchemeName string
 	DataType   genericblinding.DataType
@@ -54,7 +54,7 @@ func (blindingParamClient BlindingParamClient) Unmarshal(b []byte) (genericblind
 	if !eccutil.PointEqual(&blindingParamClient.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -70,7 +70,7 @@ func (blindingParamClient BlindingParamClient) UniqueID() []byte {
 //
 // ------------------------------------------
 
-// BlindingParamServer is not needed in JCC
+// BlindingParamServer is not needed in SNG
 type BlindingParamServer struct {
 	SchemeName string
 	DataType   genericblinding.DataType
@@ -116,7 +116,7 @@ func (blindingParamServer BlindingParamServer) Unmarshal(b []byte) (genericblind
 	if !eccutil.PointEqual(&blindingParamServer.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -173,7 +173,7 @@ func (clearMessage ClearMessage) Unmarshal(b []byte) (genericblinding.BlindingDa
 	if n.DataType != clearMessage.DataType {
 		return nil, genericblinding.ErrBadType
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -203,12 +203,12 @@ type BlindingFactors struct {
 }
 
 // NewBlindingFactors returns a new BlindingParamClient
-func NewBlindingFactors(PubKey *eccutil.Point) *BlindingFactors {
+func NewBlindingFactors(PubKey *eccutil.Point) BlindingFactors {
 	n := new(BlindingFactors)
 	n.SchemeName = SchemeName
 	n.DataType = genericblinding.TypeBlindingFactors
 	n.PubKey = *PubKey
-	return n
+	return *n
 }
 
 // SchemeData returns general data for the scheme and BlindingData type
@@ -237,7 +237,7 @@ func (blindingFactors BlindingFactors) Unmarshal(b []byte) (genericblinding.Blin
 	if !eccutil.PointEqual(&blindingFactors.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -270,12 +270,12 @@ type BlindMessage struct {
 }
 
 // NewBlindMessage returns a new BlindingParamClient
-func NewBlindMessage(PubKey *eccutil.Point) *BlindMessage {
+func NewBlindMessage(PubKey *eccutil.Point) BlindMessage {
 	n := new(BlindMessage)
 	n.SchemeName = SchemeName
 	n.DataType = genericblinding.TypeBlindMessage
 	n.PubKey = *PubKey
-	return n
+	return *n
 }
 
 // SchemeData returns general data for the scheme and BlindingData type
@@ -304,7 +304,7 @@ func (blindMessage BlindMessage) Unmarshal(b []byte) (genericblinding.BlindingDa
 	if !eccutil.PointEqual(&blindMessage.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -331,12 +331,12 @@ type BlindSignature struct {
 }
 
 // NewBlindSignature returns a new BlindingParamClient
-func NewBlindSignature(PubKey *eccutil.Point) *BlindSignature {
+func NewBlindSignature(PubKey *eccutil.Point) BlindSignature {
 	n := new(BlindSignature)
 	n.SchemeName = SchemeName
 	n.DataType = genericblinding.TypeBlindSignature
 	n.PubKey = *PubKey
-	return n
+	return *n
 }
 
 // SchemeData returns general data for the scheme and BlindingData type
@@ -365,7 +365,7 @@ func (blindSignature BlindSignature) Unmarshal(b []byte) (genericblinding.Blindi
 	if !eccutil.PointEqual(&blindSignature.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
@@ -394,12 +394,12 @@ type ClearSignature struct {
 }
 
 // NewClearSignature returns a new BlindingParamClient
-func NewClearSignature(PubKey *eccutil.Point) *ClearSignature {
+func NewClearSignature(PubKey *eccutil.Point) ClearSignature {
 	n := new(ClearSignature)
 	n.SchemeName = SchemeName
 	n.DataType = genericblinding.TypeClearSignature
 	n.PubKey = *PubKey
-	return n
+	return *n
 }
 
 // SchemeData returns general data for the scheme and BlindingData type
@@ -428,7 +428,7 @@ func (clearSignature ClearSignature) Unmarshal(b []byte) (genericblinding.Blindi
 	if !eccutil.PointEqual(&clearSignature.PubKey, &n.PubKey) {
 		return nil, genericblinding.ErrBadSigner
 	}
-	return n, nil
+	return *n, nil
 }
 
 // UniqueID returns a unique ID for this element. Constant in this case (zeros)
