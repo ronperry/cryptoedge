@@ -8,12 +8,14 @@ package bbs
 
 import (
 	"crypto/rand"
+	"io"
 	"math"
 	"math/big"
 	"sync"
 )
 
 var (
+	// Some  big.Int constants
 	zero  = big.NewInt(0)
 	one   = big.NewInt(1)
 	two   = big.NewInt(2)
@@ -22,6 +24,18 @@ var (
 	ceil  = big.NewInt(3) // That's the smallest GCD possible
 )
 
+// Reader is a conveniance reader
+var Reader io.Reader
+
+// Rand is the upstream random source for initialisation
+var Rand = rand.Reader
+
+func init() {
+	// Set up a small/less secure global random source
+	b := New(Params(128, 0))
+	Reader = b
+}
+
 // BBS contains the state of a Blum-Blum-Shub
 type BBS struct {
 	xn      *big.Int // last x
@@ -29,7 +43,7 @@ type BBS struct {
 	M       *big.Int // M = p*q
 	L       *big.Int // lcm(p-1,q-1)
 	rlock   *sync.Mutex
-	Step    uint64
+	Step    int64
 	Maxbits int // log (bits M)
 }
 
@@ -46,7 +60,7 @@ func getPrime(bits int) *big.Int {
 	var err error
 	p := new(big.Int)
 	for {
-		p, err = rand.Prime(rand.Reader, bits)
+		p, err = rand.Prime(Rand, bits)
 		if err != nil {
 			panic("rand reader failed")
 		}
@@ -65,7 +79,7 @@ func calcX(p, q *big.Int) *big.Int {
 		max = p
 	}
 	for {
-		x, err = rand.Int(rand.Reader, max)
+		x, err = rand.Int(Rand, max)
 		if err != nil {
 			panic("rand reader failed")
 		}
@@ -82,8 +96,9 @@ func calcX(p, q *big.Int) *big.Int {
 	}
 }
 
-// Params generates new BBS params
-func Params(bits int) (p, q, x *big.Int) {
+// Params generates new BBS params. bits is the number of bits that initial values should have (the more the better),
+// step is the step to which the RNG should jump when using it like this: New(Params(bits,lastStep))
+func Params(bits int, lastStep int64) (p, q, x *big.Int, step int64) {
 	p, q = new(big.Int), new(big.Int)
 	p = getPrime(bits)
 	for {
@@ -96,23 +111,39 @@ func Params(bits int) (p, q, x *big.Int) {
 		}
 	}
 	x = calcX(p, q)
-	return p, q, x
+	return p, q, x, lastStep
 }
 
 // New sets up a new BBS
-func New(p, q, x *big.Int) *BBS {
+func New(p, q, x *big.Int, step int64) *BBS {
 	bbs := new(BBS)
 	bbs.X0 = x
 	bbs.M = new(big.Int).Mul(p, q)
 	bbs.L = lcmMinusOne(p, q)
 	bbs.Maxbits = int(math.Log(float64(bbs.M.BitLen())))
+	mbits := bbs.Maxbits % 8
+	mbytes := bbs.Maxbits / 8
+	if mbits > 0 {
+		mbytes++
+	}
+	bbs.Step = int64(
+		math.Pow(float64(p.BitLen()), 2)*
+			math.Pow(float64(q.BitLen()), 2)*
+			math.Pow(float64(x.BitLen()), 2)) / int64((mbytes*8*2)/bbs.Maxbits)
+
 	bbs.rlock = new(sync.Mutex)
+	if step > 0 {
+		bbs.BytesAt(bbs.Step-step, 1)
+	}
 	return bbs
 }
 
 func (bbs *BBS) step() {
 	var x *big.Int
-	bbs.Step++
+	if bbs.Step == 1 {
+		panic("RNG Exhausted!!!")
+	}
+	bbs.Step--
 	x = bbs.xn
 	if bbs.xn == nil {
 		x = bbs.X0
@@ -164,4 +195,11 @@ func (bbs *BBS) BytesAt(n int64, m int) []byte {
 	bbs.xn = new(big.Int).Exp(bbs.X0, pos, bbs.M)
 	b := bbs.bytes(m)
 	return b
+}
+
+// Read implements BBS as io.Reader as drop-in RNG
+func (bbs *BBS) Read(p []byte) (n int, err error) {
+	l := len(p)
+	copy(p, bbs.Bytes(l))
+	return l, nil
 }
